@@ -4,13 +4,25 @@ import net.minecraft.client.KeyboardHandler;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-@Mixin(KeyboardHandler.class)
+import java.util.function.Consumer;
+
+@Mixin(value = KeyboardHandler.class)
 public class KeyboardHandlerMixin {
-    @Inject(method = "lambda$keyPress$3", at = @At("HEAD"), cancellable = true)
-    private void executeInjected(Component p_90917_, CallbackInfo ci) {
-        ci.cancel();
+    @ModifyArg(
+            method = "keyPress",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/Screenshot;grab(" +
+                            "Ljava/io/File;" +
+                            "Lcom/mojang/blaze3d/pipeline/RenderTarget;" +
+                            "Ljava/util/function/Consumer;" +
+                            ")V"
+            ),
+            index = 2
+    )
+    private Consumer<Component> injected(Consumer<Component> consumer) {
+        return component -> {};
     }
 }
